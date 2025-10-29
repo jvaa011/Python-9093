@@ -60,8 +60,21 @@ async def on_message(message):
         else:
             await message.channel.send("❌ Todavía no tenemos esta palabra... Pero estamos trabajando en ello 🧠")
 
+    elif message.content.startswith('$sarcasmo'):
+        frases = [
+            "Wow, qué aporte tan revolucionario...",
+            "Seguramente la NASA te está llamando en este momento.",
+            "Eso suena totalmente creíble, sí claro.",
+            "Excelente, otro genio incomprendido en el chat.",
+            "Sí, porque eso *obviamente* iba a funcionar.",
+            "¿Y si pruebas usar el cerebro la próxima vez?",
+            "Increíble, ni ChatGPT se atrevería a tanto."
+        ]
+        respuesta = random.choice(frases)
+        await message.channel.send(respuesta)
+
     else:
-        await message.channel.send("Comando no reconocido. Usa `$hello`, `$bye`, `$pass <n>` o `$meme <PALABRA>`")
+        await message.channel.send("Comando no reconocido. Usa `$hello`, `$bye`, `$sarcasmo`, `$pass <n>` o `$meme <PALABRA>`")
 
 # --- Ejecutar el bot ---
 client.run("TOKEN")

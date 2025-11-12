@@ -1,0 +1,117 @@
+import discord
+from discord.ext import commands
+import os, random
+import requests
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix='$', intents=intents)
+@bot.event
+async def on_ready():
+    print(f'Ha iniciado sesión como {bot.user}')
+
+@bot.command()
+async def broma(ctx):
+    '''Lanza una broma ecológica random.'''
+    bromas = [
+        "¿Sabes por qué los árboles no usan redes sociales? Porque ya tienen demasiados seguidores.",
+        "Los humanos reciclan tan bien... que reciclan las mismas excusas desde 1990.",
+        "Un plástico le dijo a otro: 'Nos vemos en 500 años'.",
+        "¿Por qué el océano rompió con el humano? Porque estaba cansado de su basura.",
+        "Reciclar no es magia, pero al menos no deja el mundo hecho un basurero.",
+        "Mi planta favorita es la que no muere a los tres días de haberla comprado.",
+        "El clima está tan loco que ya no sé si salir con paraguas o con extintor.",
+        "¿Por qué el sol no tiene amigos? Porque todos lo evitan por tóxico.",
+        "Tirar basura al piso es como gritarle al planeta 'arréglalo tú'.",
+        "Hay gente que cree que reciclar es separar el plástico... en su mente.",
+        "Los humanos dicen que aman a los animales, pero comen su casa (el bosque).",
+        "Si las tortugas pudieran hablar, nos demandarían colectivamente.",
+        "Cada vez que alguien deja el cargador enchufado sin usarlo, un panda llora.",
+        "¿Sabes qué tienen en común los microplásticos y las mentiras? Están en todas partes.",
+        "El reciclaje no es complicado. Lo complicado es hacer que la gente lo haga.",
+        "El calentamiento global no existe… dijo el que no puede subir una cuesta sin sudar.",
+        "¿Qué hace una lata en el gimnasio? Se pone en forma para reciclarse.",
+        "El planeta no necesita que seas perfecto, solo que no actúes como si tuvieras otro.",
+        "Si cada humano plantara un árbol por cada selfie, viviríamos en un bosque.",
+        "Los humanos inventaron el plástico para ahorrar tiempo, y ahora lo usan para destruirlo.",
+        "Los pingüinos están considerando mudarse a la luna. Allá no hay humanos.",
+        "¿Por qué los océanos no confían en los humanos? Porque siempre les salen con basura.",
+        "Un árbol talado produce cero oxígeno. Matemáticas simples, decisiones tontas.",
+        "Los humanos reciclan, pero sus gobiernos no.",
+        "¿Sabes cuál es el deporte favorito de la contaminación? El *basura libre*.",
+        "Si los envases plásticos tuvieran sentimientos, nos odiarían con razón.",
+        "El cambio climático no es una teoría, es un spoiler del futuro.",
+        "La Tierra no se está calentando, solo se está *hartando*.",
+        "Cada vez que alguien tira una colilla al suelo, un duende ecológico pierde las ganas de vivir.",
+        "Si los árboles dieran Wi-Fi, ya tendríamos el planeta lleno de bosques.",
+        "No dejes para mañana lo que puedes reciclar hoy… o quemará el futuro por ti.",
+        "El agua no tiene reemplazo. Ni siquiera el café puede salvarte de eso.",
+        "Dicen que el tiempo todo lo cura, pero al plástico no le llegó el memo.",
+        "Cuando un humano dice 'no pasa nada', sube medio grado la temperatura del planeta."
+    ]
+    await ctx.send(f"😂 **Eco-broma:** {random.choice(bromas)}")
+
+
+@bot.command()
+async def reto(ctx):
+    retos = [
+        "Apaga las luces que no uses hoy.",
+        "No compres nada con plástico por un día.",
+        "Reutiliza una botella en vez de tirarla.",
+        "Siembra una planta o riega una que ya tengas.",
+        "Recoge tres pedazos de basura en la calle.",
+        "Pasa una semana sin usar vasos, cubiertos ni platos desechables.",
+        "Planta un árbol o tres plantas y comparte una foto para inspirar a otros.",
+        "Haz una manualidad 100% reciclada y regálala a alguien.",
+        "Crea tu propio compost con restos de comida por al menos una semana.",
+        "Junta 10 botellas o latas y llévalas a un punto de reciclaje.",
+        "No compres nada nuevo durante 24 horas completas.",
+        "Cocina algo solo con ingredientes locales o de temporada.",
+        "Haz una limpieza en tu barrio o parque y recoge al menos 2 bolsas de basura.",
+        "Pasa un día entero sin usar transporte motorizado.",
+        "Apaga todos los aparatos eléctricos durante una hora completa.",
+        "Usa solo ropa reutilizada o de segunda mano por tres días.",
+        "Desenchufa todos los cargadores y aparatos innecesarios por un día.",
+        "Crea una campaña ecológica en tu servidor de Discord para motivar a otros.",
+        "Publica tres formas reales de reducir el plástico en tu vida diaria.",
+        "Usa una botella reutilizable toda la semana, sin comprar bebidas en plástico."
+    ]
+    await ctx.send(f"🌎 **Reto ecológico del día:** {random.choice(retos)}")
+
+
+@bot.command()
+async def eco(ctx):
+    ideas = [
+    "Haz una maceta con una botella plástica cortada y decorada con pintura acrílica.",
+    "Convierte un frasco de vidrio en una lámpara con luces LED.",
+    "Usa rollos de papel higiénico para crear organizadores de escritorio.",
+    "Transforma una caja de cereal en una carpeta o archivador.",
+    "Haz un comedero para aves con una botella de plástico.",
+    "Crea un porta-lápices con una lata decorada.",
+    "Usa tapones de botellas para hacer un mural colorido.",
+    "Haz una cartera con envases de tetra pak lavados y doblados.",
+    "Crea un juguete con retazos de tela vieja y botones.",
+    "Construye una mini huerta con botellas recicladas colgantes.",
+    "Haz un organizador colgante con bolsillos hechos de jeans viejos.",
+    "Crea un reloj de pared con un disco de vinilo usado.",
+    "Transforma un foco quemado en un mini florero.",
+    "Haz un porta celular para cargar hecho con una botella plástica cortada.",
+    "Con cartones de huevos, crea flores pintadas para decorar.",
+    "Usa corchos de vino para hacer un portallaves o un tablero decorativo.",
+    "Con tapas metálicas, arma un móvil o adorno de pared.",
+    "Convierte un neumático viejo en una silla o una cama para mascota.",
+    "Usa botellas plásticas para crear un sistema de riego por goteo para plantas.",
+    "Haz un portalápices tipo torre con tubos de cartón de papel higiénico.",
+    "Diseña una lámpara con cucharas plásticas cortadas.",
+    "Usa revistas viejas para hacer canastas enrollando las hojas.",
+    "Crea un dispensador de bolsas usando una botella grande.",
+    "Haz un soporte para laptop con cajas de cartón reforzadas.",
+    "Crea arte con tapas plásticas formando figuras o letras en una tabla.",
+    "Arma un monedero con un cierre y dos botellas pequeñas de plástico.",
+    "Haz una cortina decorativa con CDs viejos colgados con hilo.",
+    "Transforma latas de atún en portavelas o ceniceros decorados.",
+    "Crea un reloj de escritorio con cartón reciclado y piezas viejas de relojes.",
+    "Diseña una lámpara colgante con una botella de vidrio cortada (usa cuidado)."
+    ]
+    idea = random.choice(ideas)
+    await ctx.send(f"🌱 **Idea ecológica:** {idea}")
+bot.run("TOKEN")

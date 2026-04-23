@@ -1,0 +1,69 @@
+import discord
+from discord.ext import commands
+import tensorflow as tf
+from PIL import Image
+import numpy as np
+import os
+# CONFIGURACIÓN DISCORD
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix='$', intents=intents)
+# CARGAR MODELO
+modelo = tf.keras.models.load_model("keras_model.h5", compile=False)
+# CARGAR CLASES (CORREGIDO)
+def cargar_clases():
+    clases = []
+    with open("labels.txt", "r") as f:
+        for linea in f.readlines():
+            nombre = linea.strip().split(" ", 1)[1]  # quita números
+            clases.append(nombre)
+    return clases
+clases = cargar_clases()
+# FUNCIÓN DE CLASIFICACIÓN
+def clasificar_imagen(ruta):
+    img = Image.open(ruta).convert("RGB")
+    img = img.resize((224, 224))
+    img_array = np.array(img) / 255.0
+    img_array = np.expand_dims(img_array, axis=0)
+    predicciones = modelo.predict(img_array)
+    indice = np.argmax(predicciones)
+    return clases[indice], float(predicciones[0][indice])
+# EVENTO AL INICIAR
+@bot.event
+async def on_ready():
+    print(f'Bot conectado como {bot.user}')
+# COMANDO DE PRUEBA
+@bot.command()
+async def hello(ctx):
+    await ctx.send("Bot de clasificación activo!")
+# COMANDO PRINCIPAL
+@bot.command()
+async def analizar(ctx):
+    if len(ctx.message.attachments) == 0:
+        await ctx.send("Debes enviar una imagen.")
+        return
+    attachment = ctx.message.attachments[0]
+    if not attachment.filename.lower().endswith(('png', 'jpg', 'jpeg')):
+        await ctx.send("El archivo no es una imagen válida.")
+        return
+    nombre_archivo = f"imagen_{ctx.author.id}.jpg"
+    await attachment.save(nombre_archivo)
+    try:
+        clase, confianza = clasificar_imagen(nombre_archivo)
+        clase_lower = clase.lower()
+        if "Chatarra" in clase_lower:
+         mensaje = "Este plato contiene muchas calorías, es malo para tu salud"
+        else:
+         mensaje = "Este plato es saludable y puede ser parte de una dieta equilibrada."
+        await ctx.send(
+            f"**Resultado:** {clase}\n"
+            f"{mensaje}\n"
+            f"Confianza: {confianza:.2f}"
+        )
+    except Exception as e:
+        await ctx.send("Error al procesar la imagen.")
+        print(e)
+    finally:
+        if os.path.exists(nombre_archivo):
+            os.remove(nombre_archivo)
+bot.run("MTQ5NjI0NDc1MTA4MTUzNzU2Ng.GCETJf.W7gSlGYwweyvMAztyoQSuW8GeeDEEzSHUnuyW4")

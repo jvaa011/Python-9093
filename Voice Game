@@ -1,0 +1,227 @@
+import sounddevice as sd
+import scipy.io.wavfile as wav
+import speech_recognition as sr
+from googletrans import Translator
+import random
+import os
+
+# ===============================
+# CONFIGURACIÓN
+# ===============================
+duration = 5
+sample_rate = 44100
+record_file = "output.wav"
+score_file = "record.txt"
+
+# ===============================
+# PALABRAS POR DIFICULTAD
+# ===============================
+niveles = {
+    "1": {
+        "nombre": "Fácil",
+        "palabras": ["cat", "dog", "sun", "book", "apple", "car", "tree", "house", "ball", "chair", "sell", "run", "jump", "red", "blue", "big", "small", "hot", "cold", "new", "old"]
+    },
+    "2": {
+        "nombre": "Medio",
+        "palabras": ["window", "school", "banana", "family", "purple", "crazy", "water", "happy", "green", "music", "friend", "yellow", "strong", "light", "night", "city", "river", "flower", "phone", "table", "money"]
+    },
+    "3": {
+        "nombre": "Difícil",
+        "palabras": ["computer", "beautiful", "elephant", "hospital", "language", "mountain", "chocolate", "umbrella", "difficult", "adventure", "imagination", "university", "restaurant", "bicycle", "television", "discovery", "environment", "technology", "challenge", "friendship", "happiness"]
+    }
+}
+
+# ===============================
+# FRASES DIVERTIDAS
+# ===============================
+acierto_msgs = [
+    "🤖 Brutal. Lo dijiste perfecto.",
+    "🤖 Excelente. El micrófono te respeta.",
+    "🤖 Preciso. Hasta Google quedó callado.",
+    "🤖 Muy bien. Pronunciación limpia."
+    "🤖 El traductor te tiene miedo"
+]
+
+error_msgs = [
+    "🤖 Eso sonó sospechoso...",
+    "🤖 Casi... pero no. Vuelve a la batalla.",
+    "🤖 El micrófono pidió disculpas.",
+    "🤖 Eso no fue inglés, fue una invocación."
+    "🤖 El traductor se rió de ti."
+]
+
+# ===============================
+# FUNCIONES
+# ===============================
+
+def mostrar_record():
+    if os.path.exists(score_file):
+        with open(score_file, "r") as file:
+            record = file.read()
+            if record.strip() != "":
+                print(f"🏆 Récord actual: {record} puntos")
+            else:
+                print("🏆 Récord actual: 0 puntos")
+    else:
+        print("🏆 Récord actual: 0 puntos")
+
+
+def guardar_record(puntos):
+    record_actual = 0
+
+    if os.path.exists(score_file):
+        with open(score_file, "r") as file:
+            contenido = file.read().strip()
+            if contenido.isdigit():
+                record_actual = int(contenido)
+
+    if puntos > record_actual:
+        with open(score_file, "w") as file:
+            file.write(str(puntos))
+        print("🏆 NUEVO RÉCORD GUARDADO!")
+    else:
+        print("📌 No superaste el récord.")
+
+
+def obtener_rango(puntos):
+    if puntos >= 50:
+        return "El doctor de la pronunciación... ¡Eres un genio del inglés!"
+    elif puntos >= 30:
+        return "SpeakMaster"
+    elif puntos >= 20:
+        return "👑 Hablante Leyenda"
+    elif puntos >= 15:
+        return "Dios del Micrófono"
+    elif puntos >= 10:
+        return "🎖️ Maestro de la Voz"
+    elif puntos >= 5:
+        return "🎤 Parlanchín"
+    else:
+        return "🙂 Novato"
+
+
+def grabar_audio():
+    print("\n🎙 Habla ahora...")
+    recording = sd.rec(
+        int(duration * sample_rate),
+        samplerate=sample_rate,
+        channels=1,
+        dtype="int16"
+    )
+    sd.wait()
+    wav.write(record_file, sample_rate, recording)
+
+
+def reconocer_voz():
+    recognizer = sr.Recognizer()
+
+    with sr.AudioFile(record_file) as source:
+        audio = recognizer.record(source)
+
+    try:
+        texto = recognizer.recognize_google(audio, language="es")
+        return texto.lower()
+
+    except sr.UnknownValueError:
+        return None
+
+    except sr.RequestError:
+        return "error_servicio"
+
+
+# ===============================
+# INICIO DEL JUEGO
+# ===============================
+
+print("=" * 45)
+print("🎮 BIENVENIDO A SPEAK CHALLENGE 🎮")
+print("=" * 45)
+print("📢 Pronuncia la palabra en inglés.")
+print("📌 El sistema escuchará tu voz.")
+print("❌ Pierdes al cometer 3 errores.")
+print("🏆 Gana la mayor puntuación posible.\n")
+
+mostrar_record()
+
+print("\nSelecciona dificultad:")
+print("1️⃣ Fácil")
+print("2️⃣ Medio")
+print("3️⃣ Difícil")
+
+opcion = input("👉 Opción: ")
+
+while opcion not in niveles:
+    opcion = input("❗ Elige 1, 2 o 3: ")
+
+nivel = niveles[opcion]
+palabras = nivel["palabras"]
+
+print(f"\n🔥 Elegiste modo {nivel['nombre']}")
+
+# ===============================
+# VARIABLES
+# ===============================
+puntos = 0
+errores = 0
+
+translator = Translator()
+
+# ===============================
+# BUCLE PRINCIPAL
+# ===============================
+while errores < 3:
+
+    palabra = random.choice(palabras)
+
+    print("\n" + "-" * 40)
+    print(f"📝 Pronuncia esta palabra: {palabra.upper()}")
+
+    grabar_audio()
+
+    texto_usuario = reconocer_voz()
+
+    if texto_usuario is None:
+        print("😕 No se entendió tu voz.")
+        errores += 1
+        print(random.choice(error_msgs))
+        continue
+
+    if texto_usuario == "error_servicio":
+        print("❗ Error de conexión con Google.")
+        break
+
+    print("🗣 Dijiste:", texto_usuario)
+
+    # traducir lo dicho al inglés
+    try:
+        traducido = translator.translate(texto_usuario, dest="en").text.lower()
+    except:
+        traducido = texto_usuario.lower()
+
+    print("🌍 Interpretado como:", traducido)
+
+    # comparar
+    if traducido == palabra.lower() or texto_usuario == palabra.lower():
+        puntos += 1
+        print(random.choice(acierto_msgs))
+    else:
+        errores += 1
+        print(random.choice(error_msgs))
+
+    print(f"⭐ Puntos: {puntos}")
+    print(f"❌ Errores: {errores}/3")
+    print(f"🎖️ Rango actual: {obtener_rango(puntos)}")
+
+# ===============================
+# FIN DEL JUEGO
+# ===============================
+print("\n" + "=" * 45)
+print("☠️ FIN DEL JUEGO")
+print("=" * 45)
+
+print(f"⭐ Puntaje final: {puntos}")
+print(f"🎖️ Tu rango final: {obtener_rango(puntos)}")
+
+guardar_record(puntos)
+
+print("🤖 Gracias por jugar. Vuelve cuando tu lengua funcione mejor.")
